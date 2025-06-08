@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Jogo da Velha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #tabuleiro {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .celula {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            background-color: #f0f0f0;
+            border: 2px solid #444;
+            cursor: pointer;
+        }
+        .celula:hover {
+            background-color: #ddd;
+        }
+        #mensagem {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        #reiniciar {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo da Velha</h1>
+    <div id="tabuleiro"></div>
+    <div id="mensagem"></div>
+    <button id="reiniciar">Reiniciar Jogo</button>
+
+    <script>
+        const tabuleiro = document.getElementById("tabuleiro");
+        const mensagem = document.getElementById("mensagem");
+        const reiniciar = document.getElementById("reiniciar");
+
+        let jogoAtivo = true;
+        let jogadorAtual = "X";
+        let estadoJogo = ["", "", "", "", "", "", "", "", ""];
+
+        const combinacoesVitoria = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+
+        function criarTabuleiro() {
+            tabuleiro.innerHTML = "";
+            estadoJogo = ["", "", "", "", "", "", "", "", ""];
+            jogoAtivo = true;
+            jogadorAtual = "X";
+            mensagem.textContent = `Vez do Jogador ${jogadorAtual}`;
+
+            for (let i = 0; i < 9; i++) {
+                const celula = document.createElement("div");
+                celula.classList.add("celula");
+                celula.setAttribute("data-index", i);
+                celula.addEventListener("click", clicarCelula);
+                tabuleiro.appendChild(celula);
+            }
+        }
+
+        function clicarCelula(e) {
+            const index = e.target.getAttribute("data-index");
+
+            if (estadoJogo[index] !== "" || !jogoAtivo) {
+                return;
+            }
+
+            estadoJogo[index] = jogadorAtual;
+            e.target.textContent = jogadorAtual;
+
+            verificarResultado();
+        }
+
+        function verificarResultado() {
+            let rodadaGanha = false;
+
+            for (let condicao of combinacoesVitoria) {
+                const [a, b, c] = condicao;
+                if (estadoJogo[a] && estadoJogo[a] === estadoJogo[b] && estadoJogo[a] === estadoJogo[c]) {
+                    rodadaGanha = true;
+                    break;
+                }
+            }
+
+            if (rodadaGanha) {
+                mensagem.textContent = `Jogador ${jogadorAtual} venceu! 🎉`;
+                jogoAtivo = false;
+                return;
+            }
+
+            if (!estadoJogo.includes("")) {
+                mensagem.textContent = "Empate!";
+                jogoAtivo = false;
+                return;
+            }
+
+            jogadorAtual = jogadorAtual === "X" ? "O" : "X";
+            mensagem.textContent = `Vez do Jogador ${jogadorAtual}`;
+        }
+
+        reiniciar.addEventListener("click", criarTabuleiro);
+
+        criarTabuleiro();
+    </script>
+</body>
+</html>
